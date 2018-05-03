@@ -1,12 +1,14 @@
 # Movement tutorial
 
-This beginner's tutorial will walk you through the steps of creating a simple object that moves in a natural manner when you give keyboard and mouse input. After having completed this tutorial you will have a good understanding of what vectors are, how to use vectors to represent positions, velocity and acceleration, and how to tie these things together into a game embryo that you can experiment with and develop further.
+This is a tutorial for beginners. It walks you through the steps of creating a player controlled space ship that moves in a natural manner when you give keyboard input. After having completed this tutorial you will know the answers to the following questions:
 
-The tutorial assumes some basic understanding of physics concepts such as velocity and acceleration. You will also need some basic understanding of Lua programming.
+* What are vectors?
+* How can you use vectors to represent positions, velocity and acceleration?
+* How do you use this to create a game embryo that you can experiment with and develop further?
 
-## Making the spaceship move
+It is assumed that you have basic understanding of physics concepts such as velocity and acceleration. You will also need some basic understanding of Lua programming.
 
-Before digging into any details, let's first create a simple playable experiment. This project is prepared in advance for you so there is no setup to bother about. [Run the game](defold://build) to get an overview of what you have to work with:
+This project is prepared in advance for you so there is no setup to bother about. [Run the game](defold://build) to get an overview of what you have to work with:
 
 - It include graphics: an animated spaceship and a background.
 - Input is set up for arrow keys and mouse clicks.
@@ -17,7 +19,11 @@ With the game running, try pressing the arrow buttons, or click in the game wind
 
 <img src="doc/input.png" srcset="doc/input@2x.png 2x">
 
-Now open ["spaceship.script"](defold://open?path=/main/spaceship.script) and scroll down to the beginning of the function `on_input()` where you find this code:
+## Making the spaceship move
+
+Before digging into any details, let's first make a simple experiment and give the spaceship motion.
+
+Open ["spaceship.script"](defold://open?path=/main/spaceship.script) and scroll down to the beginning of the function `on_input()` where you find this code:
 
 ```lua
 function on_input(self, action_id, action)
@@ -26,7 +32,7 @@ function on_input(self, action_id, action)
     elseif...
 ```
 
-Remove the print statement and replace it so the beginning of the function instead looks like this:
+Remove the line with the statement `print("UP!")` and edit the code so the beginning of the function instead looks like this:
 
 ```lua
 function on_input(self, action_id, action)
@@ -37,25 +43,27 @@ function on_input(self, action_id, action)
     elseif...
 ```
 
-[Run the game](defold://build) again and press the <kbd>up</kbd> arrow key and see how the spaceship moves up at each press. The code is very simple, but let's look at it line by line to get a proper idea of what's going on here:
+[Run the game](defold://build) again and press the <kbd>up</kbd> arrow key and see how the spaceship moves up. The code is very simple, but let's look at it line by line to get a proper idea of what's going on:
 
 ```lua
 if action_id == hash("up") then
 ```
 
-The input bindings that are set up in the project (in the file "/input/game.input_binding") binds the <kbd>up</kbd> arrow key to an action name "up". The game runs at 60 frames per second and each frame you push <kbd>up</kbd>, an "up" action name is sent to the `on_input()` function. Holding the button down will thus make the code that follows the `if` statement execute 60 times each second.
+The input bindings that are set up in the project (in the file ["/input/game.input_binding"](defold://open?path=/input/game.input_binding)) binds each of the arrow keys to action named "up", "down", "left" and "right". The game runs at 60 frames per second and each frame you push <kbd>up</kbd>, the [hashed](https://en.wikipedia.org/wiki/Hash_function) "up" action name is sent to the `on_input()` function. Holding the button down will thus make the code between the `if` statement and the first `elseif` execute 60 times each second.
 
 ```lua
 local p = go.get_position()
 ```
 
-Since the function `go.get_position()` is called without any specific argument, it returns the position of the current game object. In this case that is the spaceship. The position is assigned to a local variable `p` so it is possible to manipulate it. The position object is a `vector3`, a vector that holds three values. If you have no idea what a vector is, don't worry, we will get there soon.
+The function `go.get_position()` gets the position of a game object. Since the function is called without any arguments, the position of the *current* game object is returned. This code belongs to the spaceship game object so the position of the spaceship is returned.
+
+The position is assigned to a local variable called `p` so it is possible to manipulate it. The position object is a `vector3`, which is a *vector* that holds three values.
 
 ```lua
 p.y = p.y + 1
 ```
 
-The `vector3` object in `p` describes a point in 3D space, consisting of an X coordinate, an Y coordinate and a Z coordinate. Since pressing the <kbd>up</kbd> button should move the ship up along the Y axis, the `y` component of the position is increased by 1. Try changing the value that is added to the `y` component and run the game again.
+The `vector3` object in `p` describes a point in 3D space, consisting of an X coordinate, an Y coordinate and a Z coordinate. Since pressing the <kbd>up</kbd> button should move the ship in the positive direction of the Y axis, the `y` component of the position is increased by 1.
 
 ```lua
 go.set_position(p)
@@ -63,50 +71,52 @@ go.set_position(p)
 
 Finally, the new changed position value is written back to the current game object.
 
+Before moving on, try changing the value added to `p.y` from 1 to 5 and [run the game again](defold://build). Notice how the ship now moves much faster.
+
+Finally, add a line below `go.set_position(p)` to print the value of `p`:
+
+```lua
+function on_input(self, action_id, action)
+    if action_id == hash("up") then
+        local p = go.get_position()
+        p.y = p.y + 1
+        go.set_position(p)
+        print(p)
+    elseif...
+```
+
+[Run the game again](defold://build) and see how the engine print the value of the position vector each frame. Notice that the second value of the vector changes as the spaceship moves:
+
+```text
+...
+DEBUG:SCRIPT: vmath.vector3(640, 460, 0)
+DEBUG:SCRIPT: vmath.vector3(640, 465, 0)
+DEBUG:SCRIPT: vmath.vector3(640, 470, 0)
+DEBUG:SCRIPT: vmath.vector3(640, 475, 0)
+...
+```
+
 ## Vectors
 
-A vector is a mathematical entity that has both a _direction_ and a _magnitude_, or length. It describes an entity in a vector space, or a specific point. In practice, a vector is nothing more than a set of numbers that taken together refer to a point in a space. For a two dimensional space, you need two numbers to describe any arbitrary point so a 2 vector consists of two numbers: one for the X axis and one for the Y axis:
+A vector is a mathematical entity that has a _direction_ and a _magnitude_ (length). A vector describes a specific point in a vector space. In practice, a vector consists of a set of numbers that give the coordinates to the point. In a two dimensional space (a plane), two numbers are necessary to describe vectors: one value for the X axis and one for the Y axis:
 
 <img src="doc/2d-vector.png" srcset="doc/2d-vector@2x.png 2x">
 
-For a three dimensional space, you need three numbers to describe any point so a 3 vector consists of three numbers: one for the X axis, one for the Y axis and one for the Z axis:
+In a three dimensional space, you need three numbers: one for the X axis, one for the Y axis and one for the Z axis:
 
 <img src="doc/3d-vector.png" srcset="doc/3d-vector@2x.png 2x">
 
-The magnitude of a vector *v* is calculated by using the Pythagorean theorum:
+The magnitude, or length, of a vector *v* is calculated using the Pythagorean theorum:
 
 <img src="doc/magnitude.png" srcset="doc/magnitude@2x.png 2x">
 
-A vector with magnitude (or length) 1 is called a *normalized vector*.
+A vector with magnitude 1 is called a *normalized vector*.
 
-Vectors for higher number of dimensions are certainly possible. Defold uses four value large vectors to encode colors (the first three values give the amount of red, green, and blue in the color. The last value describes the amount of translucency, also called "alpha".)
-
-We are all used to scalar values, real numbers that describes points on the number line. Real numbers are used to mean many different things. The number 12 could mean a number of meters, kilograms, seconds, meters per second, volts, dollars or horses. The same is true for vectors. Since a vector describes a point in space it can be used to mean a position, motion through space (along the direction of the vector) or acceleration among many other things.
-
-If you want to express movement on the screen you need two values to encode the motion (since the computer screen is 2d plane): The speed along the X axis and the speed along the Y axis. You can very well use two scalar values for this and add the speed values to the X and Y positions separately:
-
-```lua
--- update position by adding the speed (meters/s) multiplied with the number of
--- seconds that has elapsed.
-position_x = position_x + speed_x * elapsed_seconds
-position_y = position_y + speed_y * elapsed_seconds
-```
-
-This is roughly what you did when you made the spaceship move upwards earlier. There is absolutely nothing mathematically wrong with this way of calculating movement, but vectors allow you to express the motion in a clearer and more concise way. Since vectors have both a direction and a *magnitude* (length) using them to describe motion is intuitive: the direction of the vector equals the motion direction and the magnitude describes the speed of motion.
-
-```lua
--- update position by adding the speed (meters/s) multiplied with the number of
--- seconds that has elapsed.
-position = position + speed * elapsed_seconds
-```
-
-As long as the `position` and `speed` values are expressed as vectors in the same space there is a well defined algebra that allows you to add or subtract vectors, multiply vectors with scalar values, and more. We are soon going to look into that algebra.
-
-Even though Defold has a toolset that is tailored for 2D games, the engine is a true 3D engine. All positions for sprites, particle emitters, tile maps and spine objects are expressed as 3 element vectors of the type `vector3`. The X and Y value determine the position of the object along the "width" and "height" axis, and the Z position determines the "depth" position, which in effect allows you to order overlapping objects. For instance, a sprite with a Z value of 1 will appear in front of a sprite at Z position 0. Defold by default uses a coordinate system where Z is between -1 and 1 and a higher Z is in front of lower Z:
+Even though Defold has a toolset tailored for 2D games, the engine is truly a 3D engine. All game objects and components are positioned in 3D space with positions expressed as `vector3` objects. When you view your game in 2D, the X and Y value determine the position of an object along the "width" and "height" axis, and the Z position determines the position along the "depth" axis. The Z position allows you to control the visibility of overlapping objects: a sprite with a Z value of 1 will appear in front of a sprite at Z position 0. By default, Defold uses a coordinate system allowing Z values between -1 and 1:
 
 <img src="doc/z-order.png" srcset="doc/z-order@2x.png 2x">
 
-The Defold Lua library [`vmath`](https://defold.com/ref/vmath) contains functions to create and manipulate [`vmath.vector3`](https://defold.com/ref/vmath/#vmath.vector3) objects:
+The Defold Lua library [`vmath`](https://defold.com/ref/vmath) contains functions to create and manipulate [`vector3`](https://defold.com/ref/vmath/#vmath.vector3) objects:
 
 ```lua
 -- create a new vector3 at X position 100 and Y position 350.
@@ -116,35 +126,54 @@ local position = vmath.vector3(100, 350, 0)
 go.set_position("player", position)
 ```
 
+Vectors in higher dimensions than 3 are also possible. Defold uses `vector4` objects with four components to encode colors. The first three components give the amount of red, green, and blue, and the last component give the amount of translucency, also called "alpha".
+
+In everyday life you are used to do arithmetic with scalar values, real numbers that describes points on the number line. We use scalars to mean many different things. The number 12 could mean a number of meters, kilograms, pounds, seconds, meters per second, volts or dollars. The same is true for vectors. You have already seen how vectors can be used to describe a position of an object. They are also very good for describing an object's motion through space.
+
+To describe motion on a computer screen (a 2D plane) you need two values: The speed along the X axis and the speed along the Y axis. You can very well use two separate scalar values and add the speed values to the X and Y positions separately:
+
+```lua
+position_x = position_x + speed_x * elapsed_seconds
+position_y = position_y + speed_y * elapsed_seconds
+```
+
+This is roughly what you did when you previously made the spaceship move upwards, and there is nothing wrong calculating motion like this. Vectors, however, allow you to express motion clearer and more concise. Since a vector describe a *direction* and a *magnitude* they are an intuitive fit for motion: the direction of the vector equals the direction of motion, and the magnitude describes the amount of motion:
+
+```lua
+position = position + speed * elapsed_seconds
+```
+
+As long as the `position` and `speed` values are expressed as vectors in the same space you can add and subtract them, and scale them by multiplying them with scalar values. These operations are a central part of *vector algebra*.
+
 ## Vector algebra
 
 Vector algebra defines mathematical operations on vectors. Beginning with the simplest, negation, addition and subtraction.
 
 Negation
-: Negating a vector *v*, denoted by -*v*, negates each component of the vector. This makes a vector that points in the opposite direction with the same magnitude as the original vector:
+: Negating a vector *v*, denoted by -*v*, negates each component of the vector. This makes a vector that points in the opposite direction of the original vector, with the same magnitude:
 
   <img src="doc/vector-negate.png" srcset="doc/vector-neg@2x.png 2x">
 
 Addition
-: Adding vector *u* to vector *v* (*u* + *v*) adds each component of *u* to *v*. The result is a new vector:
+: Adding vector *u* to vector *v*, denoted by *u* + *v*, adds each component of *u* to *v*. The result is a new vector:
 
   <img src="doc/vector-add-cs.png" srcset="doc/vector-add-cs@2x.png 2x">
 
-  Vectors are often drawn displaced from the coordinate system. Vector operations becomes intuitive and easy to understand this way:
+  Vectors are often drawn displaced from the coordinate system which brings clarity to the operations:
 
   <img src="doc/vector-add.png" srcset="doc/vector-add@2x.png 2x">
 
 Subtraction
-: Subtracting vector *v* from vector *u* (*u* - *v*) is equal to adding the negation of *v* to *u*. So *u* - *v* = *u* + (-*v*):
+: Subtracting vector *v* from vector *u*, denoted by *u* - *v*, is equal to adding the negation of *v* to *u*. So *u* - *v* = *u* + (-*v*):
 
   <img src="doc/vector-sub.png" srcset="doc/vector-sub@2x.png 2x">
 
 Multiplication with scalar
-: Multiplying a vector *v* with a real number *r* produces a new vector of the same orientation, but with the magnitude scaled: the vector is streched out by a factor *r*. Multiplying with a negative *r* flips the vector 180 degrees:
+: Multiplying a vector *v* with a real number *r* produces a new vector with the magnitude scaled: the vector is streched out by a factor *r*. Multiplying with a negative *r* flips the orientation 180 degrees:
   
   <img src="doc/vector-mul.png" srcset="doc/vector-mul@2x.png 2x">
 
-These are the basic operations on vectors that you need to model motion. In addition, there are two special operations that come in handy if you, for instance, want to check if two vectors are parallell or at right angles of each other:
+These were the basic operations on vectors that you will use all the time. In addition, there are two special operations that come in handy if you, for instance, want to check if two vectors are parallell or at right angles of each other:
 
 Dot product
 : The dot product of two vectors *u* and *v*, denoted by *u ∙ v*, is a scalar value. It is defined as:
@@ -160,19 +189,19 @@ Dot product
   If the vectors are orthogonal (the angle between them is 90 degrees), then the dot product is zero.
 
 Cross product
-: The cross product of two vectors *u* and *v*, denoted by *u* × *v*, is a vector that is perinpendicular to both *u* and *v*:
+: The cross product of two vectors *u* and *v*, denoted by *u* × *v*, is a vector that is perpendicular to both *u* and *v*:
 
   <img src="doc/vector-cross.png" srcset="doc/vector-cross@2x.png 2x">
 
   The resulting vector is a zero vector if:
 
-  - Either one or both of the input vectors is the zero vector, (*u* = 0 or *v* = 0)
+  - Either one or both of the input vectors are zero vectors, (*u* = 0 or *v* = 0)
   - The two input vectors are parallel (θ = 0°)
   - The two input vectors are antiparallel (θ = 180°)
 
 ## Creating movement with vectors
 
-With some vector algebra under your belt, rewriting the spaceship's script should be pretty easy. Open ["spaceship.script"](defold://open?path=/main/spaceship.script) and modify the `init()`, `update()` and `on_input()` functions:
+With vector algebra as a tool, rewriting the spaceship's script is straightforward. Open ["spaceship.script"](defold://open?path=/main/spaceship.script) and modify the `init()`, `update()` and `on_input()` functions:
 
 ```lua
 function init(self)
