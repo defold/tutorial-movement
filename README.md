@@ -201,7 +201,9 @@ Cross product
 
 ## Creating movement with vectors
 
-With vector algebra as a tool, rewriting the spaceship's script is straightforward. Open ["spaceship.script"](defold://open?path=/main/spaceship.script) and modify the `init()`, `update()` and `on_input()` functions:
+Using vector algebra, you can now rewrite the spaceship's movement in a straightforward way.
+
+Open ["spaceship.script"](defold://open?path=/main/spaceship.script) and modify the `init()`, `update()` and `on_input()` functions:
 
 ```lua
 function init(self)
@@ -209,7 +211,7 @@ function init(self)
     self.input = vmath.vector3()                -- [1]
 end
 ```
-1. Create a new `vector3` (with all components set to 0) for storing the input direction. It is placed it in the current script instance (`self`) so you can use it through the lifetime of the spaceship game object.
+1. Create a new zero `vector3` for storing the input direction. It is placed it in the current script instance (`self`) so it can be uses throughout the lifetime of the spaceship game object.
 
 ```lua
 function update(self, dt)
@@ -219,10 +221,10 @@ function update(self, dt)
     self.input = vmath.vector3()                -- [4]
 end
 ```
-1. Calculate the movement vector based on the player's input vector.
+1. Calculate a movement vector based on the player's input vector.
 2. Retrieve the position of the current game object (the spaceship). The position is a `vector3`.
 2. Set the position of the current game object to `p` plus the movement vector.
-3. Reset the input vector. It will be set in the `on_input()` function that is called each frame before `update()`.
+3. Zero the input vector. The `on_input()` function is called each frame before `update()` and has the responsibility to set the input vector.
 
 ```lua
 function on_input(self, action_id, action)
@@ -239,17 +241,17 @@ function on_input(self, action_id, action)
     end
 end
 ```
-1. Set the x or y component of the input vector depending on player input. If the player presses `up` and `left` at the same time, both components are set and the input direction is diagonal.
+1. Set the x or y component of the input vector depending on player input. If the player presses `up` and `left` at the same time, the function will be called twice and both components are set, resulting in a diagonal input direction.
 
 There are two issues with this code:
 
-1. The input vector has length 1 if you move vertically or horizontally, but diagonally the length is 1.4142 (square root of 2) so diagonal movement is faster. You probably don't want that.
-2. The scale of the velocity is a bit arbitrary. Currently, it's 3 pixels of movement each frame (or 4.2 diagonally). To make the ship go faster, change the 3 to a higher value. If you want it to go slower, decrease the value. The values are a bit hard to reason about though, and there are other time based problems that may appear.
+First, the input vector has length 1 if you move vertically or horizontally, but diagonally the length is 1.4142 (square root of 2) so diagonal movement is faster. You probably don't want that.
+
+Second, the units of velocity is expressed in pixels/frame, no matter the frame length. It's set to 3 pixels of movement each frame (or about 4.2 diagonally). To make the ship go faster, change the 3 to a higher value. If you want it to go slower, decrease the value. It would be better if you could express velocity in pixels/second.
 
 The first problem is easy to fix, just normalize the input vector so the input length is always 1:
 
-lua
-```
+```lua
 function update(self, dt)
     if vmath.length_sqr(self.input) > 1 then        -- [1]
         self.input = vmath.normalize(self.input)
@@ -262,13 +264,15 @@ end
 ```
 1. If the squared length of the input vector is larger than 1, normalize the vector so it is of magnitude 1. Compare against square length since it's faster than comparing against length.
 
-The second problem requires the use of a timestep value.
+The second problem requires the use of a time step value.
 
 ## Time step
 
-Each frame the Defold engine calls the `update()` function of each script. A Defold game usually runs at 60 frames per second, so each frame is 0.016666 seconds long. That is the time elapsed between each call to `update()`. A velocity vector with a magnitude of 3 will then represent a speed of 3 * 60 = 180 pixels per second (with the regular render script). However, it would be better if you work with pixels per second: you would then be able to time your game with a stopwatch, reason about distances and timing without having to scale all values against the framerate. And a bigger problem is what happens if there, for whatever reason, is a hitch in the framerate. With the current code movement will be uneven and unpredictable.
+Each frame the Defold engine calls the `update()` function of each script. A Defold game usually runs at 60 frames per second, so each frame is 0.016666 seconds long. That is the time elapsed between each call to `update()`. A velocity vector with a magnitude of 3 will then represent a speed of 3 * 60 = 180 pixels per second (with the regular render script), *as long as there really are 60 frames each second*. What would happen if there, for whatever reason, is a hitch in the framerate? With the current code movement will be uneven and unpredictable.
 
-Defold provides a time step value to each call to `update()` allowing you to easily fix both of these problems. The time step value is usually called `dt` (for "delta time") and is set to the number of seconds that elapsed since the last frame. You should scale your values against `dt` to get proper units:
+Working with pixels per second allows you to use variable framerate properly, you would also be able to measure your game with a stopwatch and reason about distances and timings in a better way.
+
+Defold provides a time step argument value to the `update()` function. The argument is usually called `dt` (for "delta time") and its value is the number of *seconds* that elapsed since the last frame. If you scale velocity against `dt` you will get get proper units:
 
 ```lua
 function update(self, dt)
@@ -281,25 +285,25 @@ function update(self, dt)
     self.input = vmath.vector3()
 end
 ```
-1. Since input is normalized and the velocity (150) is scaled with `dt` we know that the velocity is 150 pixels per second. The screen is 1280 pixels wide so it should take the ship 8.53 seconds to fly across. You can check that with a stopwatch.
+1. The velocity is now 150 pixels per second. The screen is 1280 pixels wide so it should take the ship 8.53 seconds to fly across. You can check that with a stopwatch.
 
-The current movement works but is very stiff. To give a sense of weight to the spaceship you can use acceleration based movement.
+[Run the game again](defold://build) and try the movement code. At this stage it works but it's stiff and not very dynamic. To give a sense of weight to the spaceship a good way is to have the player's input control movement by altering acceleration instead of the velocity.
 
 ## Acceleration
 
-In the code you wrote above, the velocity was constant so the resulting movement of the velocity acting over the time-step (`dt`) was simply the velocity multiplied with the timestep, denoted by the orange area in this diagram:
+In the above code, velocity was set to a constant value, meaning that the resulting movement, or translation, of the velocity acting over the time step (`dt`) could be calculated by multiplying the velocity with the time step: *movement* = *velocity* * *dt*, or the orange area in the following diagram:
 
 <img src="doc/integration-constant.png" srcset="doc/integration-constant@2x.png 2x">
 
-Acceleration defines how fast something can reach its max speed and change direction. The acceleration is acting over the frame time-step (`dt`) and then added to the velocity. The velocity acts over the frame and the resulting translation (movement) is added to the position. We see that the movement now has to be calculated as the area under a curve. In maths, this is called [integration over time](http://en.wikipedia.org/wiki/Integral).
+Acceleration defines how fast something changes speed and direction. The acceleration is acting over the frame time step (`dt`) and then added to the velocity. The velocity acts over the frame and the resulting movement is added to the position. Since velocity changes over time the movement has to be calculated as the area under a curve. In maths, this is called [integration over time](http://en.wikipedia.org/wiki/Integral).
 
 <img src="doc/integration.png" srcset="doc/integration@2x.png 2x">
 
-With a small enough time-step a good enough geometric approximation of the area can be calculated by assuming that the acceleration acting between *v0* and *v1* is constant. By that assumption *v1* can be calculated as *v0* + *acceleration* * *dt* and the resulting movement becomes:
+With a small enough time step a good geometric approximation of the area can be calculated by assuming that the acceleration acting between *v0* and *v1* is constant, meaning that the velocity changes linearly between the two points. By that assumption *v1* can be calculated as *v0* + *acceleration* * *dt* and the resulting movement becomes:
 
 <img src="doc/movement.png" srcset="doc/movement@2x.png 2x">
 
-You can now write the final code for `init()` and `update()`:
+You can now write the final code for `init()` and `update()` (the code for `on_input()` is kept as is):
 
 ```lua
 function init(self)
@@ -321,23 +325,24 @@ function update(self, dt)
     local movement = (v0 + v1) * dt * 0.5       -- [6]
 
     local p = go.get_position()
-    go.set_position(p + movement)
+    go.set_position(p + movement)               -- [7]
 
-    self.velocity = v1                          -- [7]
+    self.velocity = v1                          -- [8]
     self.input = vmath.vector3()
 end
 ```
 1. Create a vector for storing velocity over time.
-2. Acceleration set to 200 pixels per second per second in input direction.
-3. Calculate velocity change for this time-step.
-4. v0 is velocity last time-step.
-5. v1 is v0 plus change this time-step.
-6. Calculate movement this time-step.
-7. Store velocity for next time-step.
+2. Acceleration is set to 200 pixels per second per second in the direction of player input.
+3. Calculate change of velocity this time step.
+4. v0 is set to the velocity from the previous time step.
+5. v1 is v0 plus the change of velocity this time step.
+6. Calculate how much the ship shall move this time step.
+7. Apply the change in position.
+8. Store the v1 velocity so it can be used in next time step.
 
-[Run the game](defold://build) again and try controlling the spaceship with the arrow keys. Notice how the ship feels heavy.
+Now it's time to [take your new heavy spaceship for a spin](defold://build).
 
-Congratulations! You are now finished with this tutorial. But we encourage you to continue experimenting with the code.
+Congratulations! You have completed the tutorial. But don't stop here. to continue experimenting with the code.
 
 Here are some ideas what you can try:
 
