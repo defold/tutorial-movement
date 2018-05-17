@@ -152,7 +152,7 @@ Vector algebra defines mathematical operations on vectors. Beginning with the si
 Negation
 : Negating a vector *v*, denoted by -*v*, negates each component of the vector. This makes a vector that points in the opposite direction of the original vector, with the same magnitude:
 
-  <img src="doc/vector-negate.png" srcset="doc/vector-neg@2x.png 2x">
+  <img src="doc/vector-neg.png" srcset="doc/vector-neg@2x.png 2x">
 
 Addition
 : Adding vector *u* to vector *v*, denoted by *u* + *v*, adds each component of *u* to *v*. The result is a new vector:
