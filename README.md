@@ -272,7 +272,7 @@ Each frame the Defold engine calls the `update()` function of each script. A Def
 
 Working with pixels per second allows you to use variable framerate properly, you would also be able to measure your game with a stopwatch and reason about distances and timings in a better way.
 
-Defold provides a time step argument value to the `update()` function. The argument is usually called `dt` (for "delta time") and its value is the number of *seconds* that elapsed since the last frame. If you scale velocity against `dt` you will get get proper units:
+Defold provides a time step argument value to the `update()` function. The argument is usually called `dt` (for "delta time") and its value is the number of *seconds* that elapsed since the last frame. If you scale velocity against `dt` you will get proper units:
 
 ```lua
 function update(self, dt)
@@ -332,7 +332,7 @@ function update(self, dt)
 end
 ```
 1. Create a vector for storing velocity over time.
-2. Acceleration is set to 200 pixels per second per second in the direction of player input.
+2. Acceleration is set to 200 pixels per second in the direction of player input.
 3. Calculate change of velocity this time step.
 4. v0 is set to the velocity from the previous time step.
 5. v1 is v0 plus the change of velocity this time step.
