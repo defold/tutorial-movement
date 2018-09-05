@@ -123,7 +123,7 @@ The Defold Lua library [`vmath`](https://defold.com/ref/vmath) contains function
 local position = vmath.vector3(100, 350, 0)
 
 -- set the position of game object "player" to the new vector.
-go.set_position("player", position)
+go.set_position(position, "player")
 ```
 
 Vectors in higher dimensions than 3 are also possible. Defold uses `vector4` objects with four components to encode colors. The first three components give the amount of red, green, and blue, and the last component give the amount of translucency, also called "alpha".
