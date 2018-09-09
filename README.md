@@ -128,7 +128,7 @@ go.set_position(position, "player")
 
 Vectors in higher dimensions than 3 are also possible. Defold uses `vector4` objects with four components to encode colors. The first three components give the amount of red, green, and blue, and the last component give the amount of translucency, also called "alpha".
 
-In everyday life you are used to do arithmetic with scalar values, real numbers that describes points on the number line. We use scalars to mean many different things. The number 12 could mean a number of meters, kilograms, pounds, seconds, meters per second, volts or dollars. The same is true for vectors. You have already seen how vectors can be used to describe a position of an object. They are also very good for describing an object's motion through space.
+In everyday life you are used to do arithmetic with scalar values, real numbers that describe points on the number line. We use scalars to mean many different things. The number 12 could mean a number of meters, kilograms, pounds, seconds, meters per second, volts or dollars. The same is true for vectors. You have already seen how vectors can be used to describe a position of an object. They are also very good for describing an object's motion through space.
 
 To describe motion on a computer screen (a 2D plane) you need two values: The speed along the X axis and the speed along the Y axis. You can very well use two separate scalar values and add the speed values to the X and Y positions separately:
 
@@ -211,7 +211,7 @@ function init(self)
     self.input = vmath.vector3()                -- [1]
 end
 ```
-1. Create a new zero `vector3` for storing the input direction. It is placed it in the current script instance (`self`) so it can be uses throughout the lifetime of the spaceship game object.
+1. Create a new zero `vector3` for storing the input direction. It is placed it in the current script instance (`self`) so it can be used throughout the lifetime of the spaceship game object.
 
 ```lua
 function update(self, dt)
