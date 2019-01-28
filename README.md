@@ -79,7 +79,7 @@ Finally, add a line below `go.set_position(p)` to print the value of `p`:
 function on_input(self, action_id, action)
     if action_id == hash("up") then
         local p = go.get_position()
-        p.y = p.y + 1
+        p.y = p.y + 5
         go.set_position(p)
         print(p)
     elseif...
