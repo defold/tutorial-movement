@@ -173,7 +173,7 @@ Multiplication with scalar
   
   <img src="doc/vector-mul.png" srcset="doc/vector-mul@2x.png 2x">
 
-These were the basic operations on vectors that you will use all the time. In addition, there are two special operations that come in handy if you, for instance, want to check if two vectors are parallell or at right angles of each other:
+These were the basic operations on vectors that you will use all the time. In addition, there are two special operations that come in handy if you, for instance, want to check if two vectors are parallel or at right angles of each other:
 
 Dot product
 : The dot product of two vectors *u* and *v*, denoted by *u ∙ v*, is a scalar value. It is defined as:
@@ -295,7 +295,7 @@ In the above code, velocity was set to a constant value, meaning that the result
 
 <img src="doc/integration-constant.png" srcset="doc/integration-constant@2x.png 2x">
 
-Acceleration defines how fast something changes speed and direction. The acceleration is acting over the frame time step (`dt`) and then added to the velocity. The velocity acts over the frame and the resulting movement is added to the position. Since velocity changes over time the movement has to be calculated as the area under a curve. In maths, this is called [integration over time](http://en.wikipedia.org/wiki/Integral).
+Acceleration defines how fast something changes speed and direction. The acceleration is acting over the frame time step (`dt`) and then added to the velocity. The velocity acts over the frame and the resulting movement is added to the position. Since velocity changes over time the movement has to be calculated as the area under a curve. In mathematics, this is called [integration over time](http://en.wikipedia.org/wiki/Integral).
 
 <img src="doc/integration.png" srcset="doc/integration@2x.png 2x">
 
