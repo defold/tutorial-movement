@@ -208,58 +208,58 @@ position = position + speed * elapsed_seconds
 ```lua
 function init(self)
     msg.post(".", "acquire_input_focus")
-    self.input_v = vmath.vector3()                -- [1]
+    self.input = vmath.vector3()                -- [1]
 end
 ```
 1. 使用 `vector3` 类创建零向量对象，用于存储用户输入的方向。它被放在了当前的脚本实例（`self`）中，所以它能在飞船游戏对象的整个生命周期中被调用。
 
 ```lua
 function update(self, dt)
-    local movement = self.input_v * 3             -- [1]
+    local movement = self.input * 3             -- [1]
     local p = go.get_position()                 -- [2]
     go.set_position(p + movement)               -- [3]
-    self.input_v = vmath.vector3()                -- [4]
+    self.input = vmath.vector3()                -- [4]
 end
 ```
 1. 基于玩家输入的向量，计算移动向量。
 2. 获取游戏对象自身的位置（飞船）。这个位置也是个 `vector3` 对象。
 3. 设置当前游戏对象的位置为 `p` 加上移动向量。
-4. 将 input_v 向量归零。每一帧中，`on_input()` 函数都在 `update()` 前执行，并执行设置 input_v 向量的工作。
+4. 将 input 向量归零。每一帧中，`on_input()` 函数都在 `update()` 前执行，并执行设置 input 向量的工作。
 
 ```lua
 function on_input(self, action_id, action)
     if action_id == hash("up") then
-        self.input_v.y = 1                     -- [1]
+        self.input.y = 1                     -- [1]
     elseif action_id == hash("down") then
-        self.input_v.y = -1                    -- [1]
+        self.input.y = -1                    -- [1]
     elseif action_id == hash("left") then
-        self.input_v.x = -1                    -- [1]
+        self.input.x = -1                    -- [1]
     elseif action_id == hash("right") then
-        self.input_v.x = 1                     -- [1]
+        self.input.x = 1                     -- [1]
     elseif action_id == hash("click") and action.pressed then
         print("CLICK!")
     end
 end
 ```
-1. 基于玩家的操作，设置 input_v 向量的 x、y 值。如果玩家同时按下 `up` 和 `left` 键，这个函数将被调用两次并且 x、y 都被设置，input_v 向量将的运动方向被设置为对角线（斜上方）。
+1. 基于玩家的操作，设置 input 向量的 x、y 值。如果玩家同时按下 `up` 和 `left` 键，这个函数将被调用两次并且 x、y 都被设置，input 向量将的运动方向被设置为对角线（斜上方）。
 
 对于这段代码，这会产生两个问题:
 
-首先，如果玩家只是水平或垂直的移动，input_v 向量的长度为 1，但对角线的长度则是 1.4142（2 的平方根），所以对角线移动会更快。你可能不希望发生这种事。
+首先，如果玩家只是水平或垂直的移动，input 向量的长度为 1，但对角线的长度则是 1.4142（2 的平方根），所以对角线移动会更快。你可能不希望发生这种事。
 
 其次，向量变动的单位是像素/每帧，但没办法确认每帧的时间长度。目前设置为 3 像素的每帧移动速度（于对角线是 4.2 像素/秒)。你可以改变更高的值，使移动速度更快。当然，降低该值就可以移动的更慢。如果你能用像素/秒表示移动速度，这是更好的交流与展现方式。
 
-第一个问题很好解决，只需标准化 input_v 向量，就可以使它的长度始终为 1：
+第一个问题很好解决，只需标准化 input 向量，就可以使它的长度始终为 1：
 
 ```lua
 function update(self, dt)
-    if vmath.length_sqr(self.input_v) > 1 then        -- [1]
-        self.input_v = vmath.normalize(self.input_v)
+    if vmath.length_sqr(self.input) > 1 then        -- [1]
+        self.input = vmath.normalize(self.input)
     end
-    local movement = self.input_v * 3
+    local movement = self.input * 3
     local p = go.get_position()
     go.set_position(p + movement)
-    self.input_v = vmath.vector3()
+    self.input = vmath.vector3()
 end
 ```
 1. 如果向量的平方长度大于 1，将它标准化为 1 即可。比较平方值的长度，这相对于比较长度值更快。
@@ -276,13 +276,13 @@ Defold 的 `update()` 函数支持时间步长作为参数值。这个参数通�
 
 ```lua
 function update(self, dt)
-    if vmath.length_sqr(self.input_v) > 1 then
-        self.input_v = vmath.normalize(self.input_v)
+    if vmath.length_sqr(self.input) > 1 then
+        self.input = vmath.normalize(self.input)
     end
-    local movement = self.input_v * 150 * dt              -- [1]  
+    local movement = self.input * 150 * dt              -- [1]  
     local p = go.get_position()
     go.set_position(p + movement)
-    self.input_v = vmath.vector3()
+    self.input = vmath.vector3()
 end
 ```
 1. 当前速度为 150 像素/秒。游戏屏幕的宽为 1280 像素，飞船需要 8.53 秒飞完全程。你可以编写个计时器来确认这一点。
@@ -309,15 +309,15 @@ end
 function init(self)
     msg.post(".", "acquire_input_focus")
     self.velocity = vmath.vector3()             -- [1]
-    self.input_v = vmath.vector3()
+    self.input = vmath.vector3()
 end
 
 function update(self, dt)
-    if vmath.length_sqr(self.input_v) > 1 then
-        self.input_v = vmath.normalize(self.input_v)
+    if vmath.length_sqr(self.input) > 1 then
+        self.input = vmath.normalize(self.input)
     end
     
-    local acceleration = self.input_v * 200       -- [2]
+    local acceleration = self.input * 200       -- [2]
     
     local dv = acceleration * dt                -- [3]
     local v0 = self.velocity                    -- [4]
@@ -328,7 +328,7 @@ function update(self, dt)
     go.set_position(p + movement)               -- [7]
 
     self.velocity = v1                          -- [8]
-    self.input_v = vmath.vector3()
+    self.input = vmath.vector3()
 end
 ```
 1. 创建一个向量来存储随时间变化的速度；
