@@ -8,7 +8,7 @@ This is a tutorial for beginners. It walks you through the steps of creating a p
 
 It is assumed that you have basic understanding of physics concepts such as velocity and acceleration. You will also need some basic understanding of Lua programming.
 
-This project is prepared in advance for you so there is no setup to bother about. [Run the game](defold://build) to get an overview of what you have to work with:
+This project is prepared in advance for you so there is no setup to bother about. [Run the game](defold://project.build) to get an overview of what you have to work with:
 
 - It include graphics: an animated spaceship and a background.
 - Input is set up for arrow keys and mouse clicks.
@@ -43,7 +43,7 @@ function on_input(self, action_id, action)
     elseif...
 ```
 
-[Run the game](defold://build) again and press the <kbd>up</kbd> arrow key and see how the spaceship moves up. The code is very simple, but let's look at it line by line to get a proper idea of what's going on:
+[Run the game](defold://project.build) again and press the <kbd>up</kbd> arrow key and see how the spaceship moves up. The code is very simple, but let's look at it line by line to get a proper idea of what's going on:
 
 ```lua
 if action_id == hash("up") then
@@ -71,7 +71,7 @@ go.set_position(p)
 
 Finally, the new changed position value is written back to the current game object.
 
-Before moving on, try changing the value added to `p.y` from 1 to 5 and [run the game again](defold://build). Notice how the ship now moves much faster.
+Before moving on, try changing the value added to `p.y` from 1 to 5 and [run the game again](defold://project.build). Notice how the ship now moves much faster.
 
 Finally, add a line below `go.set_position(p)` to print the value of `p`:
 
@@ -85,7 +85,7 @@ function on_input(self, action_id, action)
     elseif...
 ```
 
-[Run the game again](defold://build) and see how the engine print the value of the position vector each frame. Notice that the second value of the vector changes as the spaceship moves:
+[Run the game again](defold://project.build) and see how the engine print the value of the position vector each frame. Notice that the second value of the vector changes as the spaceship moves:
 
 ```text
 ...
@@ -287,7 +287,7 @@ end
 ```
 1. The velocity is now 150 pixels per second. The screen is 1280 pixels wide so it should take the ship 8.53 seconds to fly across. You can check that with a stopwatch.
 
-[Run the game again](defold://build) and try the movement code. At this stage it works but it's stiff and not very dynamic. To give a sense of weight to the spaceship a good way is to have the player's input control movement by altering acceleration instead of the velocity.
+[Run the game again](defold://project.build) and try the movement code. At this stage it works but it's stiff and not very dynamic. To give a sense of weight to the spaceship a good way is to have the player's input control movement by altering acceleration instead of the velocity.
 
 ## Acceleration
 
@@ -340,7 +340,7 @@ end
 7. Apply the change in position.
 8. Store the v1 velocity so it can be used in next time step.
 
-Now it's time to [take your new heavy spaceship for a spin](defold://build).
+Now it's time to [take your new heavy spaceship for a spin](defold://project.build).
 
 Congratulations! You have completed the tutorial. But don't stop here. to continue experimenting with the code.
 
